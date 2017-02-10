@@ -15,14 +15,19 @@ function scene.node:init()
 
 end
 
-function scene.node:attach(parent)
-  self:detach()
-  self.parent = parent
-  if not parent.children then
-    parent.children = {}
+function scene.node:attach(child)
+  if not child then
+    error("cannot attach nil.")
+  elseif getmetatable(child) ~= scene.node then
+    error("cannot attach non-node.")
   end
-  table.insert(parent.children, self)
-  self.pos_in_parent = #parent.children
+  child:detach()
+  if not self.children then
+    self.children = {}
+  end
+  table.insert(self.children, child)
+  child.parent = self
+  child.pos_in_parent = #self.children
 end
 
 function scene.node:detach()
@@ -32,3 +37,5 @@ function scene.node:detach()
     self.pos_in_parent = nil
   end
 end
+
+return scene
