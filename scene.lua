@@ -1,21 +1,25 @@
 local scene = {}
 
-scene.node = {}
-scene.node.__index = scene.node
+local node = {}
+node.__index = node
 
-setmetatable(scene.node, {
+setmetatable(node, {
   __call = function()
-    local new_node = setmetatable({}, scene.node)
-    scene.node.init(new_node)
+    local new_node = setmetatable({}, node)
+    node.init(new_node)
     return new_node
   end
 })
 
-function scene.node:init()
-
+function node:init()
+  self.x = 0
+  self.y = 0
+  self.sx = 1
+  self.sy = 1
+  self.rot = 0
 end
 
-function scene.node:attach(child)
+function node:attach(child)
   if not child then
     error("cannot attach nil.")
   elseif getmetatable(child) ~= scene.node then
@@ -30,12 +34,21 @@ function scene.node:attach(child)
   child.pos_in_parent = #self.children
 end
 
-function scene.node:detach()
+function node:detach()
   if self.parent then
     table.remove(self.parent.children, self.pos_in_parent)
     self.parent = nil
     self.pos_in_parent = nil
   end
+end
+
+scene.node = node
+
+function scene.extend(derived, parent)
+  derived.__super = parent
+  return setmetatable(derived, {
+    __index=parent
+  })
 end
 
 return scene
