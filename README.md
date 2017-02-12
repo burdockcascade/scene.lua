@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/nathaniellam/scene.lua.svg?branch=master)](https://travis-ci.org/nathaniellam/scene.lua)
+
 # scene.lua
 A scene graph implementation for lua.
 
