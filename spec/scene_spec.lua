@@ -37,7 +37,7 @@ describe("scene hierarchy", function()
     assert.is_equal(#parent.children, 1)
     assert.is_equal(parent.children[1], child1)
     --
-    root:attach(child2)
+    parent:attach(child2)
     assert.is_equal(#parent.children, 2)
     assert.is_equal(parent.children[2], child2)
   end)
