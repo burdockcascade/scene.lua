@@ -4,11 +4,11 @@ local scene = {}
 Utility functions
 --]]
 
-function max_bounds(x, y, half_width, half_height)
+local function max_bounds(x, y, half_width, half_height)
   return x + half_width, y + half_height
 end
 
-function min_bounds(x, y, half_width, half_height)
+local function min_bounds(x, y, half_width, half_height)
   return x - half_width, y - half_height
 end
 
@@ -68,7 +68,7 @@ function node:attach(child)
     self.root.ids[child.id] = child
   end
 
-  self:expand_bounds(child)
+  self:expand_bounds(child:as_aabb())
 end
 
 function node:detach()
@@ -118,13 +118,13 @@ function node:contains(x, y, hw, hh)
 end
 
 -- Expands the node's bounds to encompass the given AABB or point.
-function node:expand_bounds(cx, cy, hw, hh)
+function node:expand_bounds(x, y, hw, hh)
   hw = hw or 0
   hh = hh or 0
   local maxx, maxy = max_bounds(self:as_aabb())
   local minx, miny = min_bounds(self:as_aabb())
-  local cmaxx, cmaxy = max_bounds(cx, cy, hw, hh)
-  local cminx, cminy = min_bounds(cx, cy, hw, hh)
+  local cmaxx, cmaxy = max_bounds(x, y, hw, hh)
+  local cminx, cminy = min_bounds(x, y, hw, hh)
 
   if maxx < cmaxx then
     maxx = cmaxx
