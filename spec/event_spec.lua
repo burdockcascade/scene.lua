@@ -47,9 +47,9 @@ describe("event listeners", function()
   end)
 
   it("can be broadcasted", function()
-    local node1 = scene.node()
-    local node2 = scene.node()
-    local node3 = scene.node()
+    local node1 = scene.node{id="1"}
+    local node2 = scene.node{id="2"}
+    local node3 = scene.node{id="3"}
 
     node1:attach(node2)
     node1:attach(node3)
@@ -67,6 +67,9 @@ describe("event listeners", function()
     local test_obj = {received={}}
     node3:emit("test", test_obj)
 
+    for i, node in ipairs(test_obj.received) do
+      print(i, node.id())
+    end
     assert.is_equal(test_obj.received[1], node1)
     assert.is_equal(test_obj.received[2], node2)
     assert.is_equal(test_obj.received[3], node3)
