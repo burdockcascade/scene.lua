@@ -12,6 +12,12 @@ local function min_bounds(x, y, half_width, half_height)
   return x - half_width, y - half_height
 end
 
+local function insert_all(src, dest)
+  for _, value in ipairs(src) do
+    table.insert(dest, value)
+  end
+end
+
 --[[
 A node representing a local transform.
 --]]
@@ -36,6 +42,7 @@ function node:init(params)
   self.halfw = (params and params.halfw) or 0
   self.halfh = (params and params.halfh) or 0
   self._id = (params and params.id) or nil
+  self.listeners = {}
 end
 
 -- Adds id to id tables of all ancestors
@@ -184,6 +191,83 @@ function node:calc_bounds()
   self.halfh = 0
   for _, child in ipairs(self.children) do
     self:expand_bounds(child:as_aabb())
+  end
+end
+
+function node:on(event_type, listener)
+  self.listeners[event_type] = self.listeners[event_type] or {}
+  table.insert(self.listeners[event_type], listener)
+  return listener
+end
+
+function node:off(event_type, listener)
+  if listener == nil then
+    self.listeners[event_type] = nil
+  else
+    local pos = nil
+    for i, value in ipairs(self.listeners[event_type]) do
+      if value == listener then
+        pos = i
+        break
+      end
+    end
+
+    if pos ~= nil then
+      table.remove(self.listeners[event_type], pos)
+    end
+  end
+end
+
+-- Sends event to current node only
+function node:fire(event_type, ...)
+  for _, listener in ipairs(self.listeners[event_type]) do
+    local stopLocal, stopGlobal = listener(...)
+    if stopGlobal then
+      return false
+    elseif stopLocal then
+      break
+    end
+  end
+
+  return true
+end
+
+-- Sends event to root
+function node:emit(event_type, ...)
+  if not self:fire(event_type, ...) then
+    return
+  end
+
+  if self.parent then
+    self.parent:emit(event_type, ...)
+  end
+end
+
+-- Sends event to descendents
+function node:broadcast(event_type, ...)
+  if not self:fire(event_type, ...) then
+    return
+  end
+
+  if not self.children then
+    return
+  end
+
+  -- Breadth first traversal of scene tree
+  local queue = {}
+  local qpos = 1
+  insert_all(self.children, queue)
+  while qpos <= #queue do
+    local next = queue[qpos]
+    if not next:fire(event_type, ...) then
+      return
+    end
+
+    if next.children then
+      insert_all(next.children, queue)
+    end
+
+    qpos = qpos + 1
   end
 end
 
