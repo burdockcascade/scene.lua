@@ -259,12 +259,12 @@ function node:broadcast(event_type, ...)
   insert_all(self.children, queue)
   while qpos <= #queue do
     local next = queue[qpos]
-    if not child:fire(event_type, ...) then
+    if not next:fire(event_type, ...) then
       return
     end
 
-    if child.children then
-      insert_all(child.children, queue)
+    if next.children then
+      insert_all(next.children, queue)
     end
 
     qpos = qpos + 1
