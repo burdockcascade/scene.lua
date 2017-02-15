@@ -64,7 +64,7 @@ describe("scene hierarchy", function()
   end)
 end)
 
-describe("node access", function()
+describe("node accessors", function()
   it("can access the root node", function()
     local root = scene.node()
     local node1 = scene.node()
@@ -82,8 +82,8 @@ describe("node access", function()
     local node1 = scene.node{id="node1"}
     local node2 = scene.node{id="node2"}
 
-    root:attach(node1)
     node1:attach(node2)
+    root:attach(node1)
 
     assert.is_equal(node1:get_node("root"), root)
     assert.is_equal(node2:get_node("node1"), node1)

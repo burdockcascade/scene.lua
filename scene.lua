@@ -35,8 +35,20 @@ function node:init(params)
   self.rot = (params and params.rot) or 0
   self.halfw = (params and params.halfw) or 0
   self.halfh = (params and params.halfh) or 0
-  self.id = params and params.id
-  self.root = self
+  self._id = params and params.id
+end
+
+-- Adds id to id tables of all ancestors
+function node:add_id(id, anode)
+  self._ids = self._ids or {}
+  table.insert(self._ids, anode)
+  if self.parent then self.parent:add_id(id, anode) end
+end
+
+-- Remove id from id tables of all ancestors
+function node:remove_id(id)
+  self._ids[id] = nil
+  if self.parent then self.parent:remove_id(id) end
 end
 
 function node:attach(child)
@@ -44,28 +56,21 @@ function node:attach(child)
     error("cannot attach nil.")
   elseif getmetatable(child) ~= scene.node then
     error("cannot attach non-node.")
+  elseif child.parent == self then
+    return -- already a child
   end
 
   child:detach()
-  if not self.children then
-    self.children = {}
-  end
+  self.children = self.children or {}
 
   -- Add child to parent
   table.insert(self.children, child)
   child.parent = self
   child.pos_in_parent = #self.children
-  child.root = self.root
 
-  -- Set up access to child based on id
-  if child.id then
-    self.root.ids = self.root.ids or {}
-
-    if self.root.ids[child.id] then
-      error("non-unique id: " .. child.id)
-    end
-
-    self.root.ids[child.id] = child
+  -- Add id to id tables of all ancestors
+  if child._id then
+    self:add_id(child._id, child)
   end
 
   self:expand_bounds(child:as_aabb())
@@ -74,14 +79,28 @@ end
 function node:detach()
   if self.parent then
     table.remove(self.parent.children, self.pos_in_parent)
+
+    -- Remove id from id tables of all ancestors
+    if self._id then
+      self:remove_id(self._id)
+    end
+
     self.parent = nil
     self.pos_in_parent = nil
-    self.root = nil
   end
 end
 
+function node:get_root()
+  return (self.parent and self.parent:get_root()) or self
+end
+
+function node:id()
+  return self._id
+end
+
 function node:get_node(id)
-  return (self.root.id == id and self.root) or self.root.ids[id]
+  local root = self:get_root()
+  return (root._id == id and root) or root._ids[id]
 end
 
 function node:apply_transform(xform)
@@ -101,15 +120,15 @@ function node:as_aabb()
 end
 
 function node:intersects(x, y, hw, hh)
-  return (math.abs(self.x - x) < (self.halfw + hw)) and
-    (math.abs(self.y - y) < (self.halfh - hh))
+  return (math.abs(self.x - x) <= (self.halfw + hw)) and
+    (math.abs(self.y - y) <= (self.halfh - hh))
 end
 
--- Checks if a node contains the point or AABB
 function node:contains(x, y, hw, hh)
+  -- Handles case where querying with point
   if not hw or not hh then
-    return (math.abs(self.x - x) < self.halfw) and
-      (math.abs(self.y - y) < self.halfh)
+    return (math.abs(self.x - x) <= self.halfw) and
+      (math.abs(self.y - y) <= self.halfh)
   end
 
   local maxx, maxy = x + hw, y + hh
@@ -117,7 +136,7 @@ function node:contains(x, y, hw, hh)
   return self:contains(maxx, maxy) and self:contains(minx, miny)
 end
 
--- Expands the node's bounds to encompass the given AABB or point.
+-- Expands the node bounds to encompass the given AABB or point.
 function node:expand_bounds(x, y, hw, hh)
   hw = hw or 0
   hh = hh or 0
@@ -147,8 +166,10 @@ function node:expand_bounds(x, y, hw, hh)
   end
 end
 
--- A helper function to calculate the node bounds when positions have changed.
+-- A helper function to recalculate the node bounds when positions have changed.
 function node:calc_bounds()
+  self.halfw = 0
+  self.halfh = 0
   for _, child in ipairs(self.children) do
     self:expand_bounds(child:as_aabb())
   end
