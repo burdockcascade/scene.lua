@@ -249,6 +249,10 @@ function node:broadcast(event_type, ...)
     return
   end
 
+  if not self.children then
+    return
+  end
+
   -- Breadth first traversal of scene tree
   local queue = {}
   local qpos = 1
@@ -259,7 +263,7 @@ function node:broadcast(event_type, ...)
       return
     end
 
-    if child.children ~= nil then
+    if child.children then
       insert_all(child.children, queue)
     end
 
