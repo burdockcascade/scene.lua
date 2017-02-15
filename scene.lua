@@ -74,7 +74,7 @@ function node:attach(child)
   end
 
   if child._ids then
-    for id, anode in ipairs(child._ids) do
+    for id, anode in pairs(child._ids) do
       self:add_id(id, anode)
     end
   end
@@ -88,12 +88,12 @@ function node:detach()
 
     -- Remove id from id tables of all ancestors
     if self._id then
-      self:remove_id(self._id)
+      self.parent:remove_id(self._id)
     end
 
     if self._ids then
-      for id, _ in ipairs(self._ids) do
-        self:remove_id(id)
+      for id, _ in pairs(self._ids) do
+        self.parent:remove_id(id)
       end
     end
 
