@@ -41,7 +41,7 @@ end
 -- Adds id to id tables of all ancestors
 function node:add_id(id, anode)
   self._ids = self._ids or {}
-  table.insert(self._ids, anode)
+  self._ids[id] = anode
   if self.parent then self.parent:add_id(id, anode) end
 end
 
