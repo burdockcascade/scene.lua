@@ -238,7 +238,9 @@ function node:emit(event_type, ...)
     return
   end
 
-  self.parent:emit(event_type, ...)
+  if self.parent then
+    self.parent:emit(event_type, ...)
+  end
 end
 
 -- Sends event to descendents
