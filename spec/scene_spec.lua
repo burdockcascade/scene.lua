@@ -22,7 +22,11 @@ describe("scene creation", function()
     local root = scene.node(params)
 
     for key, value in pairs(params) do
-      assert.is_equal(value, root[key])
+      if key == "id" then
+        assert.is_equal(value, root:id())
+      else
+        assert.is_equal(value, root[key])
+      end
     end
   end)
 end)
