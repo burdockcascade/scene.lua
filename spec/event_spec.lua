@@ -65,7 +65,7 @@ describe("event listeners", function()
     end)
 
     local test_obj = {received={}}
-    node3:broadcast("test", test_obj)
+    node1:broadcast("test", test_obj)
 
     assert.is_equal(test_obj.received[1], node1)
     assert.is_equal(test_obj.received[2], node2)
