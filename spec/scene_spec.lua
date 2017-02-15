@@ -71,10 +71,10 @@ describe("node accessors", function()
     local node2 = scene.node()
 
     root:attach(node1)
-    assert.is_equal(node1.root, root)
+    assert.is_equal(node1:get_root(), root)
 
     node1:attach(node2)
-    assert.is_equal(node2.root, root)
+    assert.is_equal(node2:get_root(), root)
   end)
 
   it("can access nodes by id", function()

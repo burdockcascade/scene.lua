@@ -35,7 +35,7 @@ function node:init(params)
   self.rot = (params and params.rot) or 0
   self.halfw = (params and params.halfw) or 0
   self.halfh = (params and params.halfh) or 0
-  self._id = params and params.id
+  self._id = (params and params.id) or nil
 end
 
 -- Adds id to id tables of all ancestors
@@ -121,7 +121,7 @@ end
 
 function node:intersects(x, y, hw, hh)
   return (math.abs(self.x - x) <= (self.halfw + hw)) and
-    (math.abs(self.y - y) <= (self.halfh - hh))
+    (math.abs(self.y - y) <= (self.halfh + hh))
 end
 
 function node:contains(x, y, hw, hh)
