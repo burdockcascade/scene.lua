@@ -65,11 +65,8 @@ describe("event listeners", function()
     end)
 
     local test_obj = {received={}}
-    node3:emit("test", test_obj)
+    node3:broadcast("test", test_obj)
 
-    for i, node in ipairs(test_obj.received) do
-      print(i, node:id())
-    end
     assert.is_equal(test_obj.received[1], node1)
     assert.is_equal(test_obj.received[2], node2)
     assert.is_equal(test_obj.received[3], node3)
