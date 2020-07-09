@@ -46,6 +46,11 @@ describe("event listeners", function()
     assert.is_equal(test_obj.test_value, 3)
   end)
 
+  it("can be emitted without listener", function()
+    local node = scene.node()
+    node:emit("test")
+  end)
+
   it("can be broadcasted", function()
     local node1 = scene.node{id="1"}
     local node2 = scene.node{id="2"}
@@ -71,4 +76,10 @@ describe("event listeners", function()
     assert.is_equal(test_obj.received[2], node2)
     assert.is_equal(test_obj.received[3], node3)
   end)
+
+  it("can be broadcasted without listener", function()
+    local node = scene.node({id="1"})
+    node:broadcast("test")
+  end)
+
 end)

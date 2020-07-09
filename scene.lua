@@ -220,6 +220,7 @@ end
 
 -- Sends event to current node only
 function node:fire(event_type, ...)
+  self.listeners[event_type] = self.listeners[event_type] or {}
   for _, listener in ipairs(self.listeners[event_type]) do
     local stopLocal, stopGlobal = listener(...)
     if stopGlobal then
